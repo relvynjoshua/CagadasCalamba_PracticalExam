@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request; 
 use App\Models\User; 
+use App\Traits\ApiResponser;
 
 
 class TeacherController extends Controller
 {
+    use ApiResponser;
     private $request;
+    protected $primaryKey = 'teacher_id';
 
     public function __construct(Request $request)
     {
@@ -30,7 +33,14 @@ class TeacherController extends Controller
 // SEARCH BY ID RECORD TEACHER
 public function getTeacherId($id)
 { 
-   return User::where('teacher_id', '=', $id)->get();
+   $users = User::where('teacher_id', $id)->first();
+   if($users)
+    {
+        return $this->successResponse($users);
+    }
+    {
+        return $this->errorResponse("User does not exist", Response::HTTP_NOT_FOUND);
+    }
 }
 
 
@@ -44,7 +54,7 @@ public function addUser(Request $request)
             'firstname' => 'required|alpha:max:50',
             'middlename' => 'required|alpha:max:50',
             'bday' => 'date',
-            'age' => 'required|int:gt:18 years'
+            'age' => 'required|gte:18'
         ])  
     ];
     $this->validate($request, $rules);
